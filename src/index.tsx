@@ -25,7 +25,7 @@ import messages from './messages';
 import { store } from './store';
 import './styles/index.scss';
 import { telemetry } from './telemetry';
-import ITelemetry from './telemetry/ITelemetry';
+import { ITelemetry } from './telemetry/types';
 import { loadGETheme } from './themes';
 import { readTheme } from './themes/theme-utils';
 import { Mode } from './types/enums';

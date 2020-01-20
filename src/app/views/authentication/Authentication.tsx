@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import { FormattedMessage } from 'react-intl';
+import { ITelemetry, telemetry } from '../../../telemetry';
 import { IAuthenticationProps } from '../../../types/authentication';
 import * as authActionCreators from '../../services/actions/auth-action-creators';
 import { logIn } from '../../services/graph-client/msal-service';
@@ -13,9 +14,12 @@ import { showSignInButtonOrProfile } from './auth-util-components';
 import { authenticationStyles } from './Authentication.styles';
 
 export class Authentication extends Component<IAuthenticationProps, { loginInProgress: boolean }> {
+  private telemetry: ITelemetry;
+
   constructor(props: IAuthenticationProps) {
     super(props);
     this.state = { loginInProgress: false };
+    this.telemetry = telemetry;
   }
 
   public signIn = async (): Promise<void> => {
@@ -27,15 +31,18 @@ export class Authentication extends Component<IAuthenticationProps, { loginInPro
       mscc.setConsent();
     }
 
-    const authResponse = await logIn();
-    if (authResponse) {
-      this.setState({ loginInProgress: false });
+    logIn()
+      .then((authResponse) => {
+        this.props.actions!.signIn(authResponse.accessToken);
+        this.props.actions!.storeScopes(authResponse.scopes);
 
-      this.props.actions!.signIn(authResponse.accessToken);
-      this.props.actions!.storeScopes(authResponse.scopes);
-    }
+        this.setState({ loginInProgress: false });
+      })
+      .catch((error: Error) => {
+        this.setState({ loginInProgress: false });
+        telemetry.trackException(error);
+      });
 
-    this.setState({ loginInProgress: false });
   };
 
   public render() {

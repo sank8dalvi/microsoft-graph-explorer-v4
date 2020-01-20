@@ -1,7 +1,7 @@
 import { ReactPlugin, withAITracking } from '@microsoft/applicationinsights-react-js';
 import { ApplicationAnalytics, ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { ComponentType } from 'react';
-import ITelemetry from './ITelemetry';
+import { ITelemetry } from './types';
 
 class Telemetry implements ITelemetry {
   private appInsights: ApplicationInsights;
