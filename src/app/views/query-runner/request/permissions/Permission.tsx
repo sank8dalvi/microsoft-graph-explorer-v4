@@ -1,3 +1,4 @@
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import {
   DetailsList,
   DetailsListLayoutMode,
@@ -13,6 +14,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+
+import { telemetry } from '../../../../../telemetry';
 import { getAuthTokenSuccess, getConsentedScopesSuccess } from '../../../../services/actions/auth-action-creators';
 import { acquireNewAccessToken } from '../../../../services/graph-client/msal-service';
 import { classNames } from '../../../classnames';
@@ -62,8 +65,9 @@ function Permission(props: any) {
 
     fetchScopes(sample)
       .then(res => { setLoading(false); setPermissions(res); })
-      .catch(() => {
+      .catch((error) => {
         setLoading(false);
+        telemetry.trackException(error, SeverityLevel.Critical);
         setPermissions([]);
       });
   }, [sample.sampleUrl, sample.selectedVerb]);
