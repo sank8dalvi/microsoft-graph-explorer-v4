@@ -2,6 +2,7 @@ import { IconButton, PivotItem } from 'office-ui-fabric-react';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 
+import { telemetry } from '../../../../telemetry';
 import { getSnippet } from '../../../services/actions/snippet-action-creator';
 import { Monaco } from '../../common';
 import { genericCopy } from '../../common/copy';
@@ -34,6 +35,7 @@ function Snippet(props: ISnippetProps) {
 
   const sampleQuery = useSelector((state: any) => state.sampleQuery, shallowEqual);
   const snippet = useSelector((state: any) => (state.snippets)[language]);
+  const [errorMessage, setErrorMessage] = useState('');
   const [loadingState, setLoadingState] = useState(false);
 
   const dispatch = useDispatch();
@@ -46,15 +48,23 @@ function Snippet(props: ISnippetProps) {
     setLoadingState(true);
 
     getSnippet(language, sampleQuery, dispatch)
-      .then(() => setLoadingState(false));
+      .then(() => setLoadingState(false))
+      .catch((error) => {
+        setLoadingState(false);
+        setErrorMessage(error.message);
+        telemetry.trackException(error);
+      });
+
   }, [sampleQuery.sampleUrl]);
+
+  const monacoContent = errorMessage ? errorMessage : snippet;
 
   return (
     <div style={{ display: 'block' }}>
       <IconButton style={{ float: 'right', zIndex: 1 }}
         iconProps={copyIcon} onClick={async () => genericCopy(snippet)} />
       <Monaco
-        body={loadingState ? 'Fetching code snippet...' : snippet}
+        body={loadingState ? 'Fetching code snippet...' : monacoContent}
         language={language}
         readOnly={true}
       />

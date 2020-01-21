@@ -35,7 +35,7 @@ export function getSnippet(language: string, sampleQuery: IQuery, dispatch: Func
   })
     .then(resp => {
       if (!resp.ok) {
-        throw new Error('Something is wrong, can\'t get the snippet');
+        throw new Error('Something is wrong, can\'t get the snippet.');
       }
 
       return resp.text();
