@@ -6,6 +6,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import { FormattedMessage } from 'react-intl';
 import { telemetry } from '../../../telemetry';
+import { ITelemetry } from '../../../telemetry/types';
 import { IAuthenticationProps } from '../../../types/authentication';
 import * as authActionCreators from '../../services/actions/auth-action-creators';
 import { logIn } from '../../services/graph-client/msal-service';
@@ -15,7 +16,7 @@ import { showSignInButtonOrProfile } from './auth-util-components';
 import { authenticationStyles } from './Authentication.styles';
 
 export class Authentication extends Component<IAuthenticationProps, { loginInProgress: boolean }> {
-  private telemetry: any;
+  public telemetry: ITelemetry;
 
   constructor(props: IAuthenticationProps) {
     super(props);
