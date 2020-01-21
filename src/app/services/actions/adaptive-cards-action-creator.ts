@@ -1,9 +1,11 @@
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import * as AdaptiveCardsTemplateAPI from 'adaptivecards-templating';
+import { telemetry } from '../../../telemetry';
 import { IAction } from '../../../types/action';
 import { IQuery } from '../../../types/query-runner';
 import { parseSampleUrl } from '../../utils/sample-url-generation';
 import {
-  FETCH_ADAPTIVE_CARD_ERROR ,
+  FETCH_ADAPTIVE_CARD_ERROR,
   FETCH_ADAPTIVE_CARD_PENDING,
   FETCH_ADAPTIVE_CARD_SUCCESS
 } from '../redux-constants';
@@ -66,6 +68,7 @@ export function getAdaptiveCard(payload: string, sampleQuery: IQuery): Function 
       })
       .catch(error => {
         // something wrong happened
+        telemetry.trackException(error, SeverityLevel.Critical);
         return dispatch(getAdaptiveCardError(error));
       });
   };
@@ -90,16 +93,16 @@ function lookupTemplate(sampleQuery: IQuery): string {
 }
 
 const templateMap: any = {
-  '/groups' : 'Groups.json',
+  '/groups': 'Groups.json',
   '/me': 'Profile.json',
-  '/me/directReports' : 'Users.json',
+  '/me/directReports': 'Users.json',
   '/me/drive/root/children': 'Files.json',
-  '/me/drive/recent' : 'Files.json',
+  '/me/drive/recent': 'Files.json',
   '/me/manager': 'Profile.json',
-  '/me/memberOf' : 'Groups.json',
-  '/me/messages' : 'Messages.json',
-  '/sites/([^/?]+)' : 'Site.json',
-  '/sites/([^/?]+)/sites' : 'Sites.json',
-  '/users' : 'Users.json',
-  '/users/([^/?]+)' : 'Profile.json'
+  '/me/memberOf': 'Groups.json',
+  '/me/messages': 'Messages.json',
+  '/sites/([^/?]+)': 'Site.json',
+  '/sites/([^/?]+)/sites': 'Sites.json',
+  '/users': 'Users.json',
+  '/users/([^/?]+)': 'Profile.json'
 };
