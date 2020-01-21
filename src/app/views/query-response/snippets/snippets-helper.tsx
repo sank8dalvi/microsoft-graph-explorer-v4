@@ -2,6 +2,7 @@ import { IconButton, PivotItem } from 'office-ui-fabric-react';
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import { telemetry } from '../../../../telemetry';
 import { getSnippet } from '../../../services/actions/snippet-action-creator';
 import { Monaco } from '../../common';
@@ -52,7 +53,7 @@ function Snippet(props: ISnippetProps) {
       .catch((error) => {
         setLoadingState(false);
         setErrorMessage(error.message);
-        telemetry.trackException(error);
+        telemetry.trackException(error, SeverityLevel.Critical);
       });
 
   }, [sampleQuery.sampleUrl]);

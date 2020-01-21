@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
+import { SeverityLevel } from '@microsoft/applicationinsights-web';
 import { FormattedMessage } from 'react-intl';
 import { telemetry } from '../../../telemetry';
 import { IAuthenticationProps } from '../../../types/authentication';
@@ -40,7 +41,7 @@ export class Authentication extends Component<IAuthenticationProps, { loginInPro
       })
       .catch((error: Error) => {
         this.setState({ loginInProgress: false });
-        telemetry.trackException(error);
+        telemetry.trackException(error, SeverityLevel.Critical);
       });
 
   };
