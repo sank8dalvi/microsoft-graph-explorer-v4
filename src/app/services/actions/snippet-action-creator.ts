@@ -32,7 +32,14 @@ export function getSnippet(language: string, sampleQuery: IQuery, dispatch: Func
       'Content-Type': 'application/http'
     },
     body
-  }).then(resp => resp.text())
+  })
+    .then(resp => {
+      if (!resp.ok) {
+        throw new Error('Something is wrong, can\'t get the snippet');
+      }
+
+      return resp.text();
+    })
     // tslint:disable-next-line
     .then((result) => {
       obj[language] = result;

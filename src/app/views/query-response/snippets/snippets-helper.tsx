@@ -34,7 +34,7 @@ function Snippet(props: ISnippetProps) {
 
   const sampleQuery = useSelector((state: any) => state.sampleQuery, shallowEqual);
   const snippet = useSelector((state: any) => (state.snippets)[language]);
-  const [ loadingState, setLoadingState ] = useState(false);
+  const [loadingState, setLoadingState] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -43,15 +43,16 @@ function Snippet(props: ISnippetProps) {
   };
 
   useEffect(() => {
-      setLoadingState(true);
+    setLoadingState(true);
 
-      getSnippet(language, sampleQuery, dispatch)
-        .then(() => setLoadingState(false));
+    getSnippet(language, sampleQuery, dispatch)
+      .then(() => setLoadingState(false));
   }, [sampleQuery.sampleUrl]);
 
   return (
     <div style={{ display: 'block' }}>
-      <IconButton style={{ float: 'right', zIndex: 1}} iconProps={copyIcon} onClick={async () => genericCopy(snippet)}/>
+      <IconButton style={{ float: 'right', zIndex: 1 }}
+        iconProps={copyIcon} onClick={async () => genericCopy(snippet)} />
       <Monaco
         body={loadingState ? 'Fetching code snippet...' : snippet}
         language={language}
