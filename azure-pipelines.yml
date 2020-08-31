@@ -15,8 +15,15 @@ steps:
       npm run lint
     displayName: 'Runs linting checks'
 
+  - task: PowerShell@2
+    inputs:
+      targetType: inline
+      script: |
+          Start-Process "node" -ArgumentList "index.js"
+    displayName: 'Start localhost:9000'
+
   - script: |
-      start /b start:server & start /b npm t
+      npm t
     displayName: 'Runs tests'
 
   - script: |
