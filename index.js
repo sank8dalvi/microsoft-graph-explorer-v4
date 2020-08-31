@@ -9,4 +9,6 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-app.listen(process.env.PORT || 9000);
+app.listen((process.env.PORT || 9000), () => {
+  console.log('Serving...')
+});
