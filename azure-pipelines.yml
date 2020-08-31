@@ -16,11 +16,12 @@ steps:
     displayName: 'Runs linting checks'
 
   - script: |
-      npm run ci
-    displayName: 'Runs tests'
+      npm run build
 
   - script: |
-      npm run build
+      start /b start:server & start /b npm t
+    displayName: 'Runs tests'
+
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
     env:
       REACT_APP_CLIENT_ID: $(REACT_APP_STAGING_CLIENT_ID)

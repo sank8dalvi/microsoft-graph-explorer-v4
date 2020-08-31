@@ -13,24 +13,24 @@ describe('Graph Explorer', () => {
     chrome.setDefaultService(new chrome.ServiceBuilder(chromeDriver.path).build());
 
     driver = new webdriver
-    .Builder()
-    .forBrowser('chrome')
-    .setChromeOptions(new Options().headless())
-    .withCapabilities(webdriver.Capabilities.chrome())
-    .build();
+      .Builder()
+      .withCapabilities(webdriver.Capabilities.chrome())
+      .build();
   }, TEST_TIMEOUT_MS);
 
-  afterAll(async() => {
+  afterAll(async () => {
     return driver && driver.quit();
   }, TEST_TIMEOUT_MS);
 
-  beforeEach(async() => {
-    await driver.manage().setTimeouts( { implicit: 0, pageLoad:
-      60000, script: TEST_TIMEOUT_MS });
-    await driver.get('http://localhost:3000/');
+  beforeEach(async () => {
+    await driver.manage().setTimeouts({
+      implicit: 0, pageLoad:
+        60000, script: TEST_TIMEOUT_MS
+    });
+    await driver.get('http://localhost:9000/');
   }, TEST_TIMEOUT_MS);
 
-  it('checks for accessibility violations', async() => {
+  it('checks for accessibility violations', async () => {
     // @ts-ignore
     const accessibilityScanResults = await AxeBuilder(driver)
       .include('#root')

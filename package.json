@@ -84,8 +84,7 @@
     "lint": "tslint --project tsconfig.json -c tslint.json",
     "prebuild:prod": "standard-version",
     "build:prod": "npm run build",
-    "start-server": "npm start",
-    "ci": "start-server-and-test start-server http://localhost:3000 test"
+    "start:server": "node index.js"
   },
   "eslintConfig": {
     "extends": "react-app"
