@@ -9,7 +9,7 @@ steps:
 
   - script: |
       npm install
-      npm install -g chrome
+      npm install chromedriver --detect_chromedriver_version
     displayName: 'npm install'
 
   - script: |
