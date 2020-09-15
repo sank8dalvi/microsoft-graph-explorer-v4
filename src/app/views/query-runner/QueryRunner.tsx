@@ -10,12 +10,13 @@ import {
   IQueryRunnerProps,
   IQueryRunnerState,
 } from '../../../types/query-runner';
+
 import * as queryActionCreators from '../../services/actions/query-action-creators';
 import * as queryInputActionCreators from '../../services/actions/query-input-action-creators';
 import * as queryStatusActionCreators from '../../services/actions/query-status-action-creator';
 import { parseSampleUrl } from '../../utils/sample-url-generation';
+import { QueryInput } from './query-input';
 import './query-runner.scss';
-import QueryInput from './QueryInput';
 import Request from './request/Request';
 export class QueryRunner extends Component<
   IQueryRunnerProps,
@@ -42,18 +43,6 @@ export class QueryRunner extends Component<
       // Sets selected verb in App Component
       this.props.onSelectVerb(method.text);
     }
-  };
-
-  private handleOnUrlChange = (newUrl = '') => {
-    const { actions, sampleQuery } = this.props;
-
-    const newQuery = { ...sampleQuery, ...{ sampleUrl: newUrl } };
-
-    if (actions) {
-      actions.setSampleQuery(newQuery);
-    }
-
-    this.changeUrlVersion(newUrl);
   };
 
   private handleOnBlur = () => {
@@ -125,21 +114,6 @@ export class QueryRunner extends Component<
     }
   };
 
-  private changeUrlVersion(newUrl: string) {
-    const query = { ...this.props.sampleQuery };
-    const { queryVersion: newQueryVersion } = parseSampleUrl(newUrl);
-    const { queryVersion: oldQueryVersion } = parseSampleUrl(query.sampleUrl);
-
-    if (newQueryVersion !== oldQueryVersion) {
-      if (newQueryVersion === 'v1.0' || newQueryVersion === 'beta') {
-        const sampleQuery = { ...query };
-        sampleQuery.selectedVersion = newQueryVersion;
-        sampleQuery.sampleUrl = newUrl;
-        this.props.actions!.setSampleQuery(sampleQuery);
-      }
-    }
-  }
-
   public render() {
     return (
       <div>
@@ -151,7 +125,6 @@ export class QueryRunner extends Component<
                 handleOnRunQuery={this.handleOnRunQuery}
                 handleOnMethodChange={this.handleOnMethodChange}
                 handleOnVersionChange={this.handleOnVersionChange}
-                handleOnUrlChange={this.handleOnUrlChange}
                 handleOnBlur={this.handleOnBlur}
               />
             }
@@ -173,7 +146,11 @@ export class QueryRunner extends Component<
 function mapDispatchToProps(dispatch: Dispatch): object {
   return {
     actions: bindActionCreators(
-      { ...queryActionCreators, ...queryInputActionCreators, ...queryStatusActionCreators },
+      {
+        ...queryActionCreators,
+        ...queryInputActionCreators,
+        ...queryStatusActionCreators
+      },
       dispatch
     )
   };

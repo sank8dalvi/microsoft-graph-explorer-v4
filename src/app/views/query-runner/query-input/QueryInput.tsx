@@ -1,13 +1,16 @@
-import { Dropdown, TextField } from 'office-ui-fabric-react';
+import { Dropdown } from 'office-ui-fabric-react';
 import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 
-import { Mode } from '../../../types/enums';
-import { IQueryInputProps } from '../../../types/query-runner';
-import { getStyleFor } from '../../utils/badge-color';
-import SubmitButton from '../common/submit-button/SubmitButton';
-import { queryRunnerStyles } from './QueryRunner.styles';
+import { bindActionCreators, Dispatch } from 'redux';
+import { IQueryInputProps } from '../../../../types/query-runner';
+import * as queryInputActionCreators from '../../../services/actions/query-input-action-creators';
+import { getStyleFor } from '../../../utils/badge-color';
+import { parseSampleUrl } from '../../../utils/sample-url-generation';
+import SubmitButton from '../../common/submit-button/SubmitButton';
+import { queryRunnerStyles } from '../QueryRunner.styles';
+import AutoComplete from './AutoComplete';
 
 export class QueryInput extends Component<IQueryInputProps, any> {
   constructor(props: any) {
@@ -23,20 +26,41 @@ export class QueryInput extends Component<IQueryInputProps, any> {
       urlVersions: [
         { key: 'v1.0', text: 'v1.0' },
         { key: 'beta', text: 'beta' }
-      ]
+      ],
+      classes: {
+        textField: 'col-sm-12 col-lg-9',
+        gridElements: 'col-sm-12 col-lg-1',
+      }
     };
   }
 
-  public handleKeyDown = (event: any) => {
-    if (event.keyCode === 13) {
-      this.props.handleOnBlur();
+  public contentChanged = (value: string) => {
+    const { sampleQuery } = this.props;
+    const query = { ...sampleQuery, ...{ sampleUrl: value } };
+    this.changeUrlVersion(value);
+    this.props.actions!.setSampleQuery(query);
+  }
 
-      // allows the state to be populated with the new url before running it
-      setTimeout(() => {
-        this.props.handleOnRunQuery();
-      }, 500);
+  private changeUrlVersion(newUrl: string) {
+    const query = { ...this.props.sampleQuery };
+    const { queryVersion: newQueryVersion } = parseSampleUrl(newUrl);
+    const { queryVersion: oldQueryVersion } = parseSampleUrl(query.sampleUrl);
 
+    if (newQueryVersion !== oldQueryVersion) {
+      if (newQueryVersion === 'v1.0' || newQueryVersion === 'beta') {
+        const sampleQuery = { ...query };
+        sampleQuery.selectedVersion = newQueryVersion;
+        sampleQuery.sampleUrl = newUrl;
+        this.props.actions!.setSampleQuery(sampleQuery);
+      }
     }
+  }
+
+  public handleOnRunQuery = (event: any) => {
+    // allows the state to be populated with the new url before running it
+    setTimeout(() => {
+      this.props.handleOnRunQuery();
+    }, 500);
   }
 
   public render() {
@@ -45,15 +69,11 @@ export class QueryInput extends Component<IQueryInputProps, any> {
     const {
       handleOnRunQuery,
       handleOnMethodChange,
-      handleOnUrlChange,
       handleOnVersionChange,
-      handleOnBlur,
-      selectedVerb,
-      selectedVersion,
-      sampleUrl,
+      sampleQuery,
       submitting,
       mode,
-      authenticated
+      authenticated,
     } = this.props;
 
     const {
@@ -63,7 +83,7 @@ export class QueryInput extends Component<IQueryInputProps, any> {
     const verbSelector: any = queryRunnerStyles().verbSelector;
     verbSelector.title = {
       ...verbSelector.title,
-      background: getStyleFor(selectedVerb),
+      background: getStyleFor(sampleQuery.selectedVerb),
     };
 
     const httpMethodsToDisplay = (!authenticated) ? [httpMethods[0]] : httpMethods;
@@ -74,7 +94,7 @@ export class QueryInput extends Component<IQueryInputProps, any> {
           <Dropdown
             ariaLabel='Query sample option'
             role='listbox'
-            selectedKey={selectedVerb}
+            selectedKey={sampleQuery.selectedVerb}
             options={httpMethodsToDisplay}
             styles={verbSelector}
             onChange={(event, method) => handleOnMethodChange(method)}
@@ -84,20 +104,15 @@ export class QueryInput extends Component<IQueryInputProps, any> {
           <Dropdown
             ariaLabel='Query sample option'
             role='listbox'
-            selectedKey={selectedVersion || 'v1.0'}
+            selectedKey={sampleQuery.selectedVersion || 'v1.0'}
             options={urlVersions}
             onChange={(event, method) => handleOnVersionChange(method)}
           />
         </div>
         <div className='col-xs-12 col-lg-6'>
-          <TextField
-            ariaLabel='Query Sample Input'
-            role='textbox'
-            placeholder={messages['Query Sample']}
-            onChange={(event, value) => handleOnUrlChange(value)}
-            value={sampleUrl}
-            onBlur={() => handleOnBlur()}
-            onKeyDown={this.handleKeyDown}
+          <AutoComplete
+            contentChanged={this.contentChanged}
+            runQuery={this.handleOnRunQuery}
           />
         </div>
         <div className='col-xs-12 col-lg-2'>
@@ -109,20 +124,29 @@ export class QueryInput extends Component<IQueryInputProps, any> {
             submitting={submitting}
           />
         </div>
-      </div>
+      </div >
     );
   }
 }
 
 function mapStateToProps(state: any) {
   return {
-    sampleUrl: state.sampleQuery.sampleUrl,
-    selectedVerb: state.sampleQuery.selectedVerb,
-    selectedVersion: state.sampleQuery.selectedVersion,
+    sampleQuery: state.sampleQuery,
     submitting: state.isLoadingData,
     theme: state.theme,
     mode: state.graphExplorerMode,
-    authenticated: !!state.authToken
+    authenticated: !!state.authToken,
+  };
+}
+
+function mapDispatchToProps(dispatch: Dispatch): object {
+  return {
+    actions: bindActionCreators(
+      {
+        ...queryInputActionCreators,
+      },
+      dispatch
+    )
   };
 }
 
@@ -130,5 +154,5 @@ function mapStateToProps(state: any) {
 const IntlQueryInput = injectIntl(QueryInput);
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(IntlQueryInput);
