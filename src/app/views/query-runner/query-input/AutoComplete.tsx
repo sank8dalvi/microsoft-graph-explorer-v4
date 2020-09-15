@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
+import { telemetry } from '../../../../telemetry';
+import { DROPDOWN_CHANGE_EVENT } from '../../../../telemetry/event-types';
 import { IAutoCompleteProps, IAutoCompleteState } from '../../../../types/auto-complete';
 import * as autoCompleteActionCreators from '../../../services/actions/autocomplete-action-creators';
 import { parseSampleUrl } from '../../../utils/sample-url-generation';
@@ -153,6 +155,14 @@ class AutoComplete extends Component<IAutoCompleteProps, IAutoCompleteState> {
 
   };
 
+  public trackSuggestionSelectionEvent = (suggestion: string) => {
+    telemetry.trackEvent(DROPDOWN_CHANGE_EVENT,
+      {
+        ComponentName: 'Query Url Autocomplete Dropdown',
+        SelectedSuggestion: suggestion
+      });
+  }
+
   public displayLinkOptions = () => {
     const parametersWithVerb = getParametersWithVerb(this.props);
     if (!parametersWithVerb) {
@@ -270,6 +280,7 @@ class AutoComplete extends Component<IAutoCompleteProps, IAutoCompleteState> {
     this.props.contentChanged(selectedSuggestion);
     this.setFocus();
     this.initialiseAutoComplete(selectedSuggestion);
+    this.trackSuggestionSelectionEvent(selectedSuggestion);
   }
 
   private renderSuffix = () => {
